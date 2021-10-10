@@ -1,7 +1,7 @@
 import React from 'react'
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from '@hookform/error-message';
-import {convertBytes} from '../helpers.js'
+import {convertBytes} from '../../helpers.js'
 import UploadBar from './UploadBar'
 
 const Upload = ({file, setFile,active, setActive, fileUpload}) =>{

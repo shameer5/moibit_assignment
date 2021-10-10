@@ -3,11 +3,14 @@ import React, {useEffect, useState} from 'react';
 import Web3 from 'web3'
 import './App.css';
 import Login from './Login/Login'
-import Upload from './Home/Upload'
+import Upload from './Home/Upload/Upload'
+import Search from './Home/Search/Search'
 import axios from 'axios'
 
 const App = () => {
 
+  const [account, setAccount] = useState();
+  const [moi, setMoi] = useState({});
   const [active, setActive] = useState(false);
   const [authToken, setAuthToken] = useState({
     nonce: '1633678408693',
@@ -22,6 +25,10 @@ const App = () => {
   useEffect(()=> {
     getWeb3()
   },[])
+
+  useEffect(()=> {
+    getBlockChain()
+  },[account])
 
   const getWeb3 = async() => {
     if(window.ethereum) {
@@ -39,8 +46,26 @@ const App = () => {
     }
   }
 
+  const getBlockChain = async() => {
+    const web3 = window.web3
+    const accounts = await web3.eth.getAccounts()
+    setAccount(accounts[0])
+    const netId = await web3.eth.net.getId()
+    /* Each network details are stored in their respective network id*/
+    const netData = MOI.networks[netId]
+    if(netData)
+    { 
+      const moi = new web3.eth.Contract(MOI.abi,netData.address)
+      setMoi(moi)
+    }
+    else {
+      window.alert(`The Moi contract isn't available in the network`)
+    }
+  }
+
   const fileUpload = async (data) => {
     console.log('Uploading files...')
+    
     var options = {
       method: 'POST', 
       url: 'https://api.moinet.io/moibit/v1/writefile',
@@ -58,13 +83,32 @@ const App = () => {
       const {data} = await axios.request(options)
       console.log(data.meta.message)
       const res = JSON.parse(data.data[0])
-      console.log(res[0])
-      console.log('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@')
-      /* console.log(data[0].hash) */
+
+      console.log('Adding File to the blockchain...')
+      moi.methods.addingNewFile(file.name, res[0].hash, res[0].version, file.aadharNumber).send({from: account}).on('transactionHash', () => {
+        setFile({name: 'Select a file...', aadharNumber: null})
+        console.log("file(s) uploaded successfully to blockchain")
+      })
     } catch (error){
       console.log(error)
     }
   }
+
+  /* const fileSearch = async() => {
+    try{
+      const two = await moi.methods.checkAccess(file.aadharNumber).call()
+      console.log(two)
+      if(two === false){
+        let details = await moi.methods.getStudentFile(file.aadharNumber).call()
+        console.log(details)
+      }
+      else {
+        console.log("FILE IS LOCKED SOMEHOW!!!")
+      }
+    } catch (error){
+      console.log(error)
+    }
+  } */
 
   return (
     <div className="font-poppins">
