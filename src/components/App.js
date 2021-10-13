@@ -10,12 +10,13 @@ import axios from 'axios'
 const App = () => {
 
   const [account, setAccount] = useState();
+  const [aadhar, setAadhar] = useState(null);
   const [moi, setMoi] = useState({});
   const [active, setActive] = useState(false);
   const [authToken, setAuthToken] = useState({
-    nonce: '1633678408693',
-    signature: '0x0eceb2937e96447dcaa633c55b81e28ececaef7258f4920e8b6deeb3647e64753a74f86d7fdb0fee3a7d0aecd48f2d288225c3dc1693071378ffdff093f5c85e1b',
-    id: '0x3EbA123383E7f865E32623CfC30671de1d7068D3'
+    nonce: '1633953052249',
+    signature: '0x8d5480f6e11896cbca71fe6fceb4e333a3171503d24b89bf4b6021c3e61a839e5f04479e933990c93e43a9ecfc46b6469ee5d5f6769c14e07cb73f289591df321b',
+    id: '0x9035E064dF4E35863cD3658512D450dF9c6c7F5E'
   });
   const [file, setFile] = useState({
     name: 'Select a file...',
@@ -63,12 +64,12 @@ const App = () => {
     }
   }
 
-  const fileUpload = async (data) => {
+  const fileUpload = async (data, fileName) => {
     console.log('Uploading files...')
     
     var options = {
       method: 'POST', 
-      url: 'https://api.moinet.io/moibit/v1/writefile',
+      url: 'https://api.moinet.io/moibit/v1/writetexttofile',
       headers:{
         "Content-Type": "multipart/form-data" ,
         'nonce': authToken.nonce,
@@ -76,7 +77,10 @@ const App = () => {
         'id': authToken.id,
         'networkID': '12D3KooWSMAGyrB9TG45AAWaQNJmMdfJpnLQ5e1XM21hkm3FokHk',
       },
-      data: data
+      data: {
+        filename: fileName,
+        text: data
+      }
     }
 
     try{
@@ -94,26 +98,11 @@ const App = () => {
     }
   }
 
-  /* const fileSearch = async() => {
-    try{
-      const two = await moi.methods.checkAccess(file.aadharNumber).call()
-      console.log(two)
-      if(two === false){
-        let details = await moi.methods.getStudentFile(file.aadharNumber).call()
-        console.log(details)
-      }
-      else {
-        console.log("FILE IS LOCKED SOMEHOW!!!")
-      }
-    } catch (error){
-      console.log(error)
-    }
-  } */
-
   return (
-    <div className="font-poppins">
+    <div className="font-poppins ">
       {/* <Login authToken={authToken} setAuthToken={setAuthToken}/> */}
       <Upload file={file} setFile={setFile} active={active} setActive={setActive} fileUpload={fileUpload}/>
+      <Search moi={moi} aadhar={aadhar} setAadhar={setAadhar} authToken={authToken}/>
     </div>
   );
 }

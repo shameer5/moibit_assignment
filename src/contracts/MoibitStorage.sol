@@ -6,6 +6,7 @@ contract MoibitStorage{
     struct student{
         string fileName;
         string fileHash;
+        uint fileVersion;
         bool lock;
         string current_owner;
     }
@@ -17,12 +18,12 @@ contract MoibitStorage{
     event fileUnlocked(uint aadharNumber);
     event fileLocked(uint aadharNumber);
 
-    function addingNewFile(string memory _fileName, string memory _fileHash, uint _aadharNumber) public {
+    function addingNewFile(string memory _fileName, string memory _fileHash, uint _fileVersion, uint _aadharNumber) public {
         require(msg.sender != address(0), 'address is available...');
         require(bytes(_fileHash).length > 0, 'Hash of file is required...');
         require(bytes(_fileName).length > 0, 'Name of file is required...');
         require(_aadharNumber > 0, 'Aadhar number of student is required...');
-        students[_aadharNumber] = student(_fileName, _fileHash, false, '');
+        students[_aadharNumber] = student(_fileName, _fileHash, _fileVersion, false, '');
         emit fileAdded(_fileName, _aadharNumber);
     }
 
@@ -35,22 +36,29 @@ contract MoibitStorage{
         uniName[msg.sender] = _uniName;
     }
     
-    function intialView(uint _aadharNumber) public view returns(string memory access){
-        if(students[_aadharNumber].lock != false){
-            return students[_aadharNumber].current_owner;
+    function checkAccess(uint _aadharNumber) public view returns(bool){
+        //need to add condtion which checks if the uni exists in the list or not
+        //need to add conditions which checks if the student searching for exist 
+        if(keccak256(abi.encodePacked(students[_aadharNumber].current_owner)) == keccak256(abi.encodePacked(uniName[msg.sender]))){
+            return false;
         }
-        else{
-            _getStudentFile(_aadharNumber);
+        else if(students[_aadharNumber].lock == false){
+            return false;
         }
+        else return true;
     } 
 
-    function _getStudentFile(uint _aadharNumber) internal view returns(student memory studentFile){
+    function getStudentFile(uint _aadharNumber) public view returns(student memory studentFile){
         return students[_aadharNumber];
+    }
+
+    function getUni(uint _aadharNumber) public view returns(string memory uni){
+        return students[_aadharNumber].current_owner;
     }
 
     function lockStudentFile(uint _aadharNumber) public {
         require(students[_aadharNumber].lock == false, 'File is already locked...');
-        require(keccak256(abi.encodePacked(uniName[msg.sender])) == keccak256(abi.encodePacked('')), 'File is locked by someone else still...');
+        require(keccak256(abi.encodePacked(students[_aadharNumber].current_owner)) == keccak256(abi.encodePacked('')), 'File is locked by someone else still...');
         students[_aadharNumber].lock = true;
         students[_aadharNumber].current_owner = uniName[msg.sender];
         emit fileLocked(_aadharNumber);
