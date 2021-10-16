@@ -6,17 +6,19 @@ import Login from './Login/Login'
 import Upload from './Home/Upload/Upload'
 import Search from './Home/Search/Search'
 import axios from 'axios'
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 const App = () => {
 
+  const [page, setPage] = useState()
   const [account, setAccount] = useState();
   const [aadhar, setAadhar] = useState(null);
   const [moi, setMoi] = useState({});
   const [active, setActive] = useState(false);
   const [authToken, setAuthToken] = useState({
-    nonce: '1633953052249',
-    signature: '0x8d5480f6e11896cbca71fe6fceb4e333a3171503d24b89bf4b6021c3e61a839e5f04479e933990c93e43a9ecfc46b6469ee5d5f6769c14e07cb73f289591df321b',
-    id: '0x9035E064dF4E35863cD3658512D450dF9c6c7F5E'
+    nonce: undefined,
+    signature: undefined,
+    id: undefined
   });
   const [file, setFile] = useState({
     name: 'Select a file...',
@@ -89,7 +91,7 @@ const App = () => {
       const res = JSON.parse(data.data[0])
 
       console.log('Adding File to the blockchain...')
-      moi.methods.addingNewFile(file.name, res[0].hash, res[0].version, file.aadharNumber).send({from: account}).on('transactionHash', () => {
+      moi.methods.addingNewFile(file.name, res[0].hash, res[0].version, file.aadharNumber, authToken.id).send({from: account}).on('transactionHash', () => {
         setFile({name: 'Select a file...', aadharNumber: null})
         console.log("file(s) uploaded successfully to blockchain")
       })
@@ -100,9 +102,17 @@ const App = () => {
 
   return (
     <div className="font-poppins ">
-      {/* <Login authToken={authToken} setAuthToken={setAuthToken}/> */}
-      <Upload file={file} setFile={setFile} active={active} setActive={setActive} fileUpload={fileUpload}/>
-      <Search moi={moi} aadhar={aadhar} setAadhar={setAadhar} authToken={authToken}/>
+      <Router>
+        <Switch>
+          <Route path='/home'>
+            {page && page === true ? (<Upload file={file} setFile={setFile} active={active} setActive={setActive} fileUpload={fileUpload}/>) :
+            (<Search moi={moi} aadhar={aadhar} setAadhar={setAadhar} authToken={authToken} account={account}/>)}
+          </Route>
+          <Route path='/'>
+            <Login authToken={authToken} setAuthToken={setAuthToken} moi={moi} account={account} setPage={setPage}/>
+          </Route>
+        </Switch>
+      </Router>
     </div>
   );
 }

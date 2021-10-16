@@ -40,7 +40,7 @@ const Upload = ({file, setFile,active, setActive, fileUpload}) =>{
                     </div>)}
             </div>
             {file.name !== 'Select a file...' && (
-            <div className={`flex items-center justify-center transition transform ease-in-out duration-1500 h-screen w-screen top-0 left-0 absolute z-10 ${active ? `translate-y-200` : `-translate-y-200`}`}>
+            <div className={`overflow-hidden flex items-center justify-center transition transform ease-in-out duration-1500 h-screen w-full top-0 left-0 absolute z-10 ${active ? `translate-y-200` : `-translate-y-200`}`}>
             <div className={`flex flex-grow flex-shrink mx-4 min-w-0 max-w-xl flex-col bg-gray-100 p-2 rounded-xl shadow-custom transition transform ease-in-out duration-1500`}>
                 <div className="flex justify-end">
                     <button onClick={()=>{setActive(!active)}}><svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
