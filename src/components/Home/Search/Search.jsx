@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import SearchBar from './SearchBar'
 import { ErrorMessage } from '@hookform/error-message';
 import { useForm } from "react-hook-form";
@@ -8,7 +8,7 @@ import crypto from 'crypto-js'
 import Credentials from '../Credentials/Credentials'
 
 const pages = ['aadharPage', 'skPage']
-const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
+const Search = ({moi, aadhar, setAadhar, account, cookies}) => {
     const { register, handleSubmit, formState: { errors }} = useForm();
     
     const [url, setUrl] = useState()
@@ -19,7 +19,7 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
     const [activeStep, setActiveStep] = useState(0)
     const [fileDownload, setFileDownload] = useState()
 
-
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const onSubmit = async (data, e) => {
         e.preventDefault()
         try {
@@ -27,12 +27,12 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
             const bytes  = AES.decrypt(blockDetails.response.data, data.SK)
             const decryptedFile = convertWordArrayToUint8Array(bytes);
             console.log('successfully decrypted file')
-            const owner = await moi.methods.checkOwner(authToken.id, aadhar).call()
+            const owner = await moi.methods.checkOwner(cookies.token.id, aadhar).call()
             console.log(owner)
             if(owner === false)
             {
               console.log('locking file(s) in blockchain')
-              moi.methods.lockStudentFile(aadhar, authToken.id).send({from: account}).on('transactionHash', () => {
+              moi.methods.lockStudentFile(aadhar, cookies.token.id).send({from: account}).on('transactionHash', () => {
               console.log("file(s) successfully locked in the blockchain")
               var forNow = new Blob([decryptedFile])
               setFileDownload(new Blob([decryptedFile]));
@@ -53,10 +53,11 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
         }
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const fileSearch = async(aadharNumber) => {
         console.log("Searching for file...")
         try{
-          const res = await moi.methods.checkAccess(aadharNumber, authToken.id).call()
+          const res = await moi.methods.checkAccess(aadharNumber, cookies.token.id).call()
           console.log(res)
           if(res === false){
             let details = await moi.methods.getStudentFile(aadharNumber).call()
@@ -112,6 +113,7 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
         return uInt8Array;
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const handleUnlock = (data, e) => {
         e.preventDefault()
         fileDownload.aadharNumber = aadhar
@@ -128,6 +130,7 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
         }
     }
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const fileUpload = async (data, fileName) => {
       console.log('Uploading files...')
       
@@ -153,7 +156,7 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
         const res = JSON.parse(data.data[0])
   
         console.log('Adding File to the blockchain...')
-        moi.methods.unlockStudentFile(fileName, res[0].hash, res[0].version, aadhar, authToken.id).send({from: account}).on('transactionHash', () => {
+        moi.methods.unlockStudentFile(fileName, res[0].hash, res[0].version, aadhar, cookies.token.id).send({from: account}).on('transactionHash', () => {
           console.log("file(s) unlocked & uploaded successfully to blockchain")
           setUrl(undefined)
           window.location.assign("http://localhost:3000/home")
@@ -162,6 +165,16 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
         console.log(error)
       }
     }
+
+    useEffect(()=>{
+      console.log("checking if session expired")
+      if(!cookies.token)
+      {
+        window.alert('Your sessison has timed out');
+        window.location.assign("http://localhost:3000")
+      }
+      else console.log("session continues")
+    },[cookies.token, onSubmit, fileSearch, handleUnlock, fileUpload])
 
     return (
         <>
@@ -208,7 +221,7 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
                       </svg>UNLOCK FILE</button>
                       </div>
                       <button className='mt-2 justify-center items-center flex rounded-xl p-2 tracking-widest bg-black active:bg-gray-900 text-white gap-3'
-                      onClick={() => {setActiveStep(0)}}>
+                      onClick={() => {window.location.assign("http://localhost:3000/home")}}>
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                       <path fillRule="evenodd" d="M6.707 4.879A3 3 0 018.828 4H15a3 3 0 013 3v6a3 3 0 01-3 3H8.828a3 3 0 01-2.12-.879l-4.415-4.414a1 1 0 010-1.414l4.414-4.414zm4 2.414a1 1 0 00-1.414 1.414L10.586 10l-1.293 1.293a1 1 0 101.414 1.414L12 11.414l1.293 1.293a1 1 0 001.414-1.414L13.414 10l1.293-1.293a1 1 0 00-1.414-1.414L12 8.586l-1.293-1.293z" clipRule="evenodd" />
                       </svg>RETURN TO SEARCH</button>
@@ -221,7 +234,7 @@ const Search = ({moi, aadhar, setAadhar, authToken, account}) => {
                       <h1 className='font-bold text-4xl text-center'>{`${blockDetails.uni_name}`}</h1>
                     </div>
                     <button className='mt-2 justify-center items-center flex rounded-xl p-2 tracking-widest bg-red-600 active:bg-red-700 text-white gap-3'
-                    onClick={() => {setActiveStep(0)}}>
+                    onClick={() => {window.location.assign("http://localhost:3000/home")}}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M6.707 4.879A3 3 0 018.828 4H15a3 3 0 013 3v6a3 3 0 01-3 3H8.828a3 3 0 01-2.12-.879l-4.415-4.414a1 1 0 010-1.414l4.414-4.414zm4 2.414a1 1 0 00-1.414 1.414L10.586 10l-1.293 1.293a1 1 0 101.414 1.414L12 11.414l1.293 1.293a1 1 0 001.414-1.414L13.414 10l1.293-1.293a1 1 0 00-1.414-1.414L12 8.586l-1.293-1.293z" clipRule="evenodd" />
                     </svg>RETURN TO SEARCH</button>

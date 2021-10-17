@@ -3,18 +3,16 @@ import { useForm } from "react-hook-form";
 import axios from 'axios'
 import { useHistory } from 'react-router-dom'
 
-const Login =({authToken, setAuthToken, moi, account, setPage}) => {
+const Login =({moi, account, cookies, setCookie}) => {
     const { register, handleSubmit } = useForm();
     const [addUser , setAddUser] = useState();
+
 
     const history = useHistory();
 
     const onSubmit = async (data, e) => {
+        const details = data
         e.preventDefault()
-        setAuthToken({
-            nonce: data.nonce,
-            signature: data.signature,
-        })
         var options = {
             method: 'POST', 
             url: 'https://api.moinet.io/moibit/v1/user/auth',
@@ -26,10 +24,7 @@ const Login =({authToken, setAuthToken, moi, account, setPage}) => {
         
         try {
             const {data} = await axios.request(options)
-            setAuthToken(prevState=>({
-                ...prevState,
-                id: data.data.address
-            }))
+            const id = data.data.address
             console.log(data.meta.message)
             var value = await moi.methods.setOrNot(data.data.address).call()
             console.log(value)
@@ -37,7 +32,17 @@ const Login =({authToken, setAuthToken, moi, account, setPage}) => {
             if(value === true){
                 /* Move to the home page */
                 var response = await moi.methods.whichPage(data.data.address).call()
-                setPage(response)
+
+                console.log('setting cookies')
+                const token = {
+                nonce: details.nonce,
+                id: id,
+                signature: details.signature,
+                page: response
+                }
+                setCookie('token', token, {path:'/', expires: 0, maxAge: 3600});
+                console.log(cookies.token)
+                console.log('cookies are set')
                 history.push('/home')
             }
         } catch(error){
@@ -48,10 +53,10 @@ const Login =({authToken, setAuthToken, moi, account, setPage}) => {
     const registerUser = (data, e) => {
         e.preventDefault()
         console.log(data.uniName)
-        moi.methods.setCollege(data.uniName, authToken.id).send({from: account}).on('transactionHash', async () => {
+        moi.methods.setCollege(data.uniName, cookies.token.id).send({from: account}).on('transactionHash', async () => {
             console.log("user successfully registered in the blockchain")
-            var response = await moi.methods.whichPage(authToken.id).call()
-            setPage(response)
+            var response = await moi.methods.whichPage(cookies.token.id).call()
+            setCookie('page', response, {path:'/', expires: 0, maxAge: 60});
             history.push('/home')
         })
     }

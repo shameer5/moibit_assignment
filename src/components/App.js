@@ -7,19 +7,17 @@ import Upload from './Home/Upload/Upload'
 import Search from './Home/Search/Search'
 import axios from 'axios'
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { useCookies } from "react-cookie";
+import Time from './Time';
+import Credentials from './Home/Credentials/Credentials';
 
 const App = () => {
 
-  const [page, setPage] = useState()
+  const [cookies, setCookie] = useCookies(["token"]);
   const [account, setAccount] = useState();
   const [aadhar, setAadhar] = useState(null);
   const [moi, setMoi] = useState({});
   const [active, setActive] = useState(false);
-  const [authToken, setAuthToken] = useState({
-    nonce: undefined,
-    signature: undefined,
-    id: undefined
-  });
   const [file, setFile] = useState({
     name: 'Select a file...',
     aadharNumber: null
@@ -32,6 +30,10 @@ const App = () => {
   useEffect(()=> {
     getBlockChain()
   },[account])
+
+  useEffect(()=> {
+    console.log('updated cookies')
+  },[cookies.token])
 
   const getWeb3 = async() => {
     if(window.ethereum) {
@@ -74,9 +76,9 @@ const App = () => {
       url: 'https://api.moinet.io/moibit/v1/writetexttofile',
       headers:{
         "Content-Type": "multipart/form-data" ,
-        'nonce': authToken.nonce,
-        'signature': authToken.signature,
-        'id': authToken.id,
+        'nonce': Credentials.DEVELOPER_NONCE,
+        'signature': Credentials.DEVELOPER_SIGNATURE,
+        'id': Credentials.DEVELOPER_ID,
         'networkID': '12D3KooWSMAGyrB9TG45AAWaQNJmMdfJpnLQ5e1XM21hkm3FokHk',
       },
       data: {
@@ -91,7 +93,7 @@ const App = () => {
       const res = JSON.parse(data.data[0])
 
       console.log('Adding File to the blockchain...')
-      moi.methods.addingNewFile(file.name, res[0].hash, res[0].version, file.aadharNumber, authToken.id).send({from: account}).on('transactionHash', () => {
+      moi.methods.addingNewFile(file.name, res[0].hash, res[0].version, file.aadharNumber, cookies.token.id).send({from: account}).on('transactionHash', () => {
         setFile({name: 'Select a file...', aadharNumber: null})
         console.log("file(s) uploaded successfully to blockchain")
       })
@@ -105,11 +107,12 @@ const App = () => {
       <Router>
         <Switch>
           <Route path='/home'>
-            {page && page === true ? (<Upload file={file} setFile={setFile} active={active} setActive={setActive} fileUpload={fileUpload}/>) :
-            (<Search moi={moi} aadhar={aadhar} setAadhar={setAadhar} authToken={authToken} account={account}/>)}
+            {cookies.token ? (cookies.token.page === true ? (cookies.token ? <Upload file={file} setFile={setFile} active={active} setActive={setActive} fileUpload={fileUpload} cookies={cookies}/> : <Time />) :
+            (cookies.token ? <Search moi={moi} aadhar={aadhar} setAadhar={setAadhar} account={account} cookies={cookies}/>: <Time />)
+            ): <Time />}
           </Route>
           <Route path='/'>
-            <Login authToken={authToken} setAuthToken={setAuthToken} moi={moi} account={account} setPage={setPage}/>
+            <Login moi={moi} account={account} cookies={cookies} setCookie={setCookie}/>
           </Route>
         </Switch>
       </Router>

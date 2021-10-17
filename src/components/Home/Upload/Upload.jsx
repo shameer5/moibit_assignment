@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import { useForm } from "react-hook-form";
 import { ErrorMessage } from '@hookform/error-message';
 import {convertBytes} from '../../helpers.js'
@@ -7,9 +7,10 @@ import AES from 'crypto-js/aes'
 import crypto from 'crypto-js'
 
 
-const Upload = ({file, setFile,active, setActive, fileUpload}) =>{
+const Upload = ({file, setFile,active, setActive, fileUpload, cookies}) =>{
     const { register, handleSubmit, formState: { errors }} = useForm();
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const onSubmit = (data, e) => {
         e.preventDefault()
         file.aadharNumber= data.aadharNumber
@@ -26,6 +27,16 @@ const Upload = ({file, setFile,active, setActive, fileUpload}) =>{
             fileUpload(encryptedFile, file.name)
         }
     }
+
+    useEffect(()=>{
+        console.log("checking if session expired")
+        if(!cookies.token)
+        {
+          window.alert('Your sessison has timed out');
+          window.location.assign("http://localhost:3000")
+        }
+        else console.log("session continues")
+      },[cookies.token, onSubmit])
 
     return(
         <>

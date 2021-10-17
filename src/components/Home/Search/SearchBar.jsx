@@ -11,9 +11,9 @@ const SearchBar = ({fileSearch, setAadhar}) => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col'>
-         <div className="flex items-center justify-center mx-5">
-            <input type='number' placeholder='Aadhar Number...' className='flex outline-none max-w-xl rounded-l-xl border-2 border-blue-700 p-2'
+        <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col w-9/12 max-w-xl mx-5'>
+         <div className="flex flex-auto items-center justify-center">
+            <input type='number' placeholder='Aadhar Number...' className='flex outline-none flex-auto rounded-l-xl border-2 border-blue-700 p-2'
             {...register("aadharNumber", {required: true, minLength:{value: 12, message: 'less than 12 digits'}, maxLength:{value: 12, message: 'more than 12 digits'} })} />
             <button className="flex outline-none tracking-wider border-2 rounded-r-xl p-2 border-blue-700 bg-blue-700 active:bg-blue-800 active:border-blue-700 text-white"
             type="submit">search</button>
