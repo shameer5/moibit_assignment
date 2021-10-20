@@ -7,7 +7,7 @@ import AES from 'crypto-js/aes'
 import crypto from 'crypto-js'
 
 
-const Upload = ({file, setFile,active, setActive, fileUpload, cookies}) =>{
+const Upload = ({file, setFile,active, setActive, fileUpload, cookies, removeCookie}) =>{
     const { register, handleSubmit, formState: { errors }} = useForm();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -28,6 +28,11 @@ const Upload = ({file, setFile,active, setActive, fileUpload, cookies}) =>{
         }
     }
 
+    const handleLogout = () => {
+        window.location.assign('http://localhost:3000/')
+        removeCookie('token')
+    }
+
     useEffect(()=>{
         console.log("checking if session expired")
         if(!cookies.token)
@@ -41,6 +46,11 @@ const Upload = ({file, setFile,active, setActive, fileUpload, cookies}) =>{
     return(
         <>
             <div className={`${file.name !== 'Select a file...' && !active && `filter blur`} flex flex-col gap-3 justify-center h-screen bg-yellow-300`} >
+                <button className={`${file.aadharNumber && `hidden`} absolute top-0 right-4 mt-2 flex justify-center items-center rounded-xl p-2 tracking-widest bg-red-600 active:bg-red-700 text-white gap-3`}
+                onClick={handleLogout}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>LOGOUT</button>
                 <h1 className='text-center text-xl font-semibold'>Upload your students TC in moibit</h1>
                 <UploadBar className="mb-2" file={file} setFile={setFile}/>
                 {file.name !== 'Select a file...' && (

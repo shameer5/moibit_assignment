@@ -13,7 +13,7 @@ import Credentials from './Home/Credentials/Credentials';
 
 const App = () => {
 
-  const [cookies, setCookie] = useCookies(["token"]);
+  const [cookies, setCookie, removeCookie] = useCookies(["token"]);
   const [account, setAccount] = useState();
   const [aadhar, setAadhar] = useState(null);
   const [moi, setMoi] = useState({});
@@ -94,8 +94,8 @@ const App = () => {
 
       console.log('Adding File to the blockchain...')
       moi.methods.addingNewFile(file.name, res[0].hash, res[0].version, file.aadharNumber, cookies.token.id).send({from: account}).on('transactionHash', () => {
-        setFile({name: 'Select a file...', aadharNumber: null})
         console.log("file(s) uploaded successfully to blockchain")
+        window.location.assign('http://localhost:3000/home')
       })
     } catch (error){
       console.log(error)
@@ -107,8 +107,8 @@ const App = () => {
       <Router>
         <Switch>
           <Route path='/home'>
-            {cookies.token ? (cookies.token.page === true ? (cookies.token ? <Upload file={file} setFile={setFile} active={active} setActive={setActive} fileUpload={fileUpload} cookies={cookies}/> : <Time />) :
-            (cookies.token ? <Search moi={moi} aadhar={aadhar} setAadhar={setAadhar} account={account} cookies={cookies}/>: <Time />)
+            {cookies.token ? (cookies.token.page === true ? (cookies.token ? <Upload file={file} setFile={setFile} active={active} setActive={setActive} fileUpload={fileUpload} cookies={cookies} removeCookie={removeCookie}/> : <Time />) :
+            (cookies.token ? <Search moi={moi} aadhar={aadhar} setAadhar={setAadhar} account={account} cookies={cookies} removeCookie={removeCookie}/>: <Time />)
             ): <Time />}
           </Route>
           <Route path='/'>

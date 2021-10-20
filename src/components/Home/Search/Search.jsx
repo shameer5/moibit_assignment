@@ -8,7 +8,7 @@ import crypto from 'crypto-js'
 import Credentials from '../Credentials/Credentials'
 
 const pages = ['aadharPage', 'skPage']
-const Search = ({moi, aadhar, setAadhar, account, cookies}) => {
+const Search = ({moi, aadhar, setAadhar, account, cookies, removeCookie}) => {
     const { register, handleSubmit, formState: { errors }} = useForm();
     
     const [url, setUrl] = useState()
@@ -96,6 +96,7 @@ const Search = ({moi, aadhar, setAadhar, account, cookies}) => {
           }
         } catch (error){
           console.log(error)
+          window.alert("student doesn't exist")
         }
     }
 
@@ -166,6 +167,11 @@ const Search = ({moi, aadhar, setAadhar, account, cookies}) => {
       }
     }
 
+    const handleLogout = () => {
+      window.location.assign('http://localhost:3000/')
+      removeCookie('token')
+    }
+
     useEffect(()=>{
       console.log("checking if session expired")
       if(!cookies.token)
@@ -203,6 +209,11 @@ const Search = ({moi, aadhar, setAadhar, account, cookies}) => {
         ) : 
         (activeStep === pages.length ? (
             <div className='flex flex-col h-screen justify-center items-center bg-green-400 gap-3'>
+              <button className='absolute top-0 right-4 mt-2 flex justify-center items-center rounded-xl p-2 tracking-widest bg-red-600 active:bg-red-700 text-white gap-3'
+              onClick={handleLogout}>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>LOGOUT</button>
                 {downloadName ? (
                     <>
                     <h1 className='text-center text-2xl font-semibold'>{blockDetails.fileName}</h1>
@@ -233,7 +244,7 @@ const Search = ({moi, aadhar, setAadhar, account, cookies}) => {
                       <h1 className='font-semibold text-3xl text-center'>This file is locked by</h1>
                       <h1 className='font-bold text-4xl text-center'>{`${blockDetails.uni_name}`}</h1>
                     </div>
-                    <button className='mt-2 justify-center items-center flex rounded-xl p-2 tracking-widest bg-red-600 active:bg-red-700 text-white gap-3'
+                    <button className='mt-2 justify-center items-center flex rounded-xl p-2 tracking-widest bg-blue-700 active:bg-blue-800 text-white gap-3'
                     onClick={() => {window.location.assign("http://localhost:3000/home")}}>
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M6.707 4.879A3 3 0 018.828 4H15a3 3 0 013 3v6a3 3 0 01-3 3H8.828a3 3 0 01-2.12-.879l-4.415-4.414a1 1 0 010-1.414l4.414-4.414zm4 2.414a1 1 0 00-1.414 1.414L10.586 10l-1.293 1.293a1 1 0 101.414 1.414L12 11.414l1.293 1.293a1 1 0 001.414-1.414L13.414 10l1.293-1.293a1 1 0 00-1.414-1.414L12 8.586l-1.293-1.293z" clipRule="evenodd" />
@@ -242,6 +253,11 @@ const Search = ({moi, aadhar, setAadhar, account, cookies}) => {
             </div>) :
             (activeStep < pages.length && activeStep === 0  ? (
             <div className='flex flex-col h-screen justify-center items-center bg-green-400 gap-3'>
+                <button className='absolute top-0 right-4 mt-2 justify-center items-center flex rounded-xl p-2 tracking-widest bg-red-600 active:bg-red-700 text-white gap-3'
+                onClick={handleLogout}>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>LOGOUT</button>
                 <h1 className='text-center text-xl font-semibold'>Search for students TC in moibit</h1>
                 <SearchBar fileSearch={fileSearch} aadhar={aadhar} setAadhar={setAadhar}/>
             </div>) :

@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import axios from 'axios'
 import { useHistory } from 'react-router-dom'
 
+var token = {}
+
 const Login =({moi, account, cookies, setCookie}) => {
     const { register, handleSubmit } = useForm();
     const [addUser , setAddUser] = useState();
@@ -28,18 +30,18 @@ const Login =({moi, account, cookies, setCookie}) => {
             console.log(data.meta.message)
             var value = await moi.methods.setOrNot(data.data.address).call()
             console.log(value)
+            token = {
+                nonce: details.nonce,
+                id: id,
+                signature: details.signature
+            }
             setAddUser(value)
             if(value === true){
                 /* Move to the home page */
                 var response = await moi.methods.whichPage(data.data.address).call()
 
                 console.log('setting cookies')
-                const token = {
-                nonce: details.nonce,
-                id: id,
-                signature: details.signature,
-                page: response
-                }
+                token.page = response
                 setCookie('token', token, {path:'/', expires: 0, maxAge: 3600});
                 console.log(cookies.token)
                 console.log('cookies are set')
@@ -53,10 +55,11 @@ const Login =({moi, account, cookies, setCookie}) => {
     const registerUser = (data, e) => {
         e.preventDefault()
         console.log(data.uniName)
-        moi.methods.setCollege(data.uniName, cookies.token.id).send({from: account}).on('transactionHash', async () => {
+        moi.methods.setCollege(data.uniName, token.id).send({from: account}).on('transactionHash', async () => {
             console.log("user successfully registered in the blockchain")
-            var response = await moi.methods.whichPage(cookies.token.id).call()
-            setCookie('page', response, {path:'/', expires: 0, maxAge: 60});
+            var response = await moi.methods.whichPage(token.id).call()
+            token.page = response
+            setCookie('token',token, {path:'/', expires: 0, maxAge: 3600});
             history.push('/home')
         })
     }
