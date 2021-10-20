@@ -1,12 +1,12 @@
 # Moibit Assignment
 ## Overview
 This dApp requires users to have a moibit account through which they can login to the app. 
-Using the Moibit ID a specific user's role is set as school by the deployer of the smart contract. Also using the Moibit ID and their univeristy names other users can register into the application as university.
+Using the Moibit ID a specific user's role is set as school by the deployer of the smart contract. Also using the Moibit ID and their univeristy names, other users can register into the application as the university.
 
-The file uploads of new students into the application can only be done by the users who have their role set as school. Before the file is uploaded into Moibit, the file is enrcypted using **AES encryption** alogrithim and then uploaded to Moibit. Upon uploading file to Moibit, the file hash, file version and the students who the file belongs to is stored into the blockchain.
+The file uploads of new students into the application can only be done by the users who have their role set as school. Before the file is uploaded into Moibit, the file is enrcypted using **AES encryption** alogrithim and then uploaded to Moibit. On uploading file to Moibit, the file hash, file version and the students who the file belongs to is stored into the blockchain.
 
-The retrieval of student file is done by searching for the student using the aadhar number. After retriving the details of the file from the blockchain, the file is then retrived from Moibit and only is accessbile after decyrpting the file using the secret key used to encryt the file.
-The file(s) are locked by the users who have the secret key to decrypt the file. If a user tries retrieving a file which is locked, then the application displays by who the file is locked by.
+The retrieval of student file is done by searching for the student using the aadhar number. After retrieving the details of the file from the blockchain, the file is then retrieved from Moibit and only is accessbile after decrypting the file using the secret key used to encrypt the file.
+The file(s) are locked by the user who have the secret key to decrypt the file. If a user tries retrieving a file which is locked, then the application displays by who the file is locked by.
 
 ## Tech
 
@@ -46,7 +46,7 @@ Clone down this repo to your computer, and then follow the steps below:
      accounts = await web3.eth.getAccounts()
      owner = accounts[0]
      school = 'ENTER_MOIBIT_ID_OF_ACCOUNT_YOU WANT_AS_SCHOOL'
-     change = await moi.changeSchool(owner, school, {from: owner})
+     changing = await moi.changeSchool(owner, school, {from: owner})
     ```
 4. Set the developer information
     in file **_src/components/Credentials/Credentials.js_** enter the details of school's moibit account
