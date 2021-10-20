@@ -62,6 +62,6 @@ Clone down this repo to your computer, and then follow the steps below:
     npm start
     ```
 ## Notes
-- Only the Moibit account registered as user can upload files of new students and view the upload page of the dApp.
+- Only the Moibit account registered as school can upload files of new students and view the upload page of the dApp.
 - The other accounts registering as universities into the dApp also require Moibit account in order to use the application. They can only only view the search page and not the upload page of the dApp.
 - Universities which wish to unlock a file of specific student need to create a new secret key to encrypt and upload the file to the school's Moibit storage.
