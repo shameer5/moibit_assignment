@@ -49,7 +49,7 @@ Clone down this repo to your computer, and then follow the steps below:
      changing = await moi.changeSchool(owner, school, {from: owner})
     ```
 4. Set the developer information
-    in file **_src/components/Credentials/Credentials.js_** enter the details of school's moibit account
+    in file **_src/components/Home/Credentials/Credentials.js_** enter the details of school's moibit account
     ``` js
     export default {
     DEVELOPER_NONCE: 'MOIBIT_NONCE_OF_SCHOOL',
